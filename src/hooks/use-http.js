@@ -9,9 +9,9 @@ const useHttp = (requestConfig, applyData) => {
     setError(null);
     try {
       const response = await fetch(requestConfig.url, {
-        method: requestConfig.method,
-        headers: requestConfig.headers,
-        body: JSON.stringify(requestConfig.body),
+        method: requestConfig.method ? requestConfig.method : "GET",
+        headers: requestConfig.headers ? requestConfig.headers : {},
+        body: requestConfig.body ? JSON.stringify(requestConfig.body) : null,
       });
 
       if (!response.ok) {
@@ -61,5 +61,16 @@ export default useHttp;
 // 2.3 In the end of the custom hook (not at the end of "sendRequest"), but at the end of custom hook function, I wanna return something to the component where is custom hook is used.
 // 2.4 This "return" will return property "isLoading" which points at the "isloading" state constant (from useState). Also return "error: error" and "sendRequest: sendRequest" - this "sendRequest" is function.
 // 2.5 Update to shortcut: "isLoading, error, sendRequest"
+// AFTER THIS FO TO APP COMPONENT AND USE CUSTOM HOOK
 // ~~ BULDING A CUSTOM HTTP HOOK ~~
-("https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json");
+// ("https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json");
+
+// ~~ USING THE CUSTOM HOOK ~~
+// CAME FROM App.js
+// STEP 2:
+// 2.1 Let's tweak configuration of fetch request in "sendRequest".
+// 2.2 "requestConfig.method" is set, and only if set, I apply it here and otherwise I set this to GET as a default. ("requestConfig.method ? requestConfig.method : 'GET'").
+// 2.3 "requestConfig.headers ? requestConfig.headers : {}"
+// 2.4 The same for body: "body: requestConfig.body ? JSON.stringify(requestConfig.body) : null"
+// GO BACK to App.js
+// ~~ USING THE CUSTOM HOOK ~~
