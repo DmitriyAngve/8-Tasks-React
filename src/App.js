@@ -15,6 +15,7 @@ function App() {
       const response = await fetch(
         "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json"
       );
+      console.log(response);
 
       if (!response.ok) {
         throw new Error("Request failed!");
