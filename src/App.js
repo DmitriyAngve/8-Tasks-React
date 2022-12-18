@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Tasks from "./components/Tasks/Tasks";
 import NewTask from "./components/NewTask/NewTask";
@@ -8,51 +8,52 @@ function App() {
   // const [isLoading, setIsLoading] = useState(false);
   // const [error, setError] = useState(null);
   const [tasks, setTasks] = useState([]);
-
-  const transformTasks = useCallback((tasksObj) => {
-    const loadedTasks = [];
-
-    for (const taskKey in tasksObj) {
-      loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text });
-    }
-
-    setTasks(loadedTasks);
-  }, []);
-
-  // const { isLoading, error, sendRequest } = httpData;
-  const { isLoading, error, sendRequest: fetchTasks } = useHttp(transformTasks);
-
-  // const fetchTasks = async (taskText) => {
-  //   setIsLoading(true);
-  //   setError(null);
-  //   try {
-  //     const response = await fetch(
-  //       "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json"
-  //     );
-  //     console.log(response);
-
-  //     if (!response.ok) {
-  //       throw new Error("Request failed!");
-  //     }
-
-  //     const data = await response.json();
-
-  //     // const loadedTasks = [];
-  //     // for (const taskKey in data) {
-  //     //   loadedTasks.push({ id: taskKey, text: data[taskKey].text });
-  //     // }
-  //     // setTasks(loadedTasks);
-  //   } catch (err) {
-  //     setError(err.message || "Something went wrong!");
+  // const transformTasks = (tasksObj) => {
+  //   const loadedTasks = [];
+  //   for (const taskKey in tasksObj) {
+  //     loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text });
   //   }
-  //   setIsLoading(false);
+  //   setTasks(loadedTasks);
   // };
+  // const { isLoading, error, sendRequest } = httpData;
+  const { isLoading, error, sendRequest: fetchTasks } = useHttp();
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~WITH USECALLBACK~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // const { isLoading, error, sendRequest: fetchTasks } = useHttp(transformTasks);
+  // const transformTasks = useCallback((tasksObj) => {
+  //   const loadedTasks = [];
 
+  //   for (const taskKey in tasksObj) {
+  //     loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text });
+  //   }
+
+  //   setTasks(loadedTasks);
+  // }, []);
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~WITH USECALLBACK~~~~~~~~~~~~~~~~~~~~~~~~~~~
   useEffect(() => {
+    const transformTasks = (tasksObj) => {
+      const loadedTasks = [];
+
+      for (const taskKey in tasksObj) {
+        loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text });
+      }
+
+      setTasks(loadedTasks);
+    };
     fetchTasks(
-      "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json"
+      {
+        url: "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json",
+      },
+      transformTasks
     );
   }, [fetchTasks]);
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~WITH USECALLBACK~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // useEffect(() => {
+  //   fetchTasks(
+  //     "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json"
+  //   );
+  // }, [fetchTasks]);
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~WITH USECALLBACK~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   const taskAddHandler = (task) => {
     setTasks((prevTasks) => prevTasks.concat(task));
