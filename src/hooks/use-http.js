@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const useHttp = (requestConfig, applyData) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const sendRequest = async (taskText) => {
+  const sendRequest = useCallback(async (taskText) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -29,7 +29,7 @@ const useHttp = (requestConfig, applyData) => {
       setError(err.message || "Something went wrong!");
     }
     setIsLoading(false);
-  };
+  }, []);
   return {
     // isLoading: isLoading,
     // error: error,
@@ -74,3 +74,13 @@ export default useHttp;
 // 2.4 The same for body: "body: requestConfig.body ? JSON.stringify(requestConfig.body) : null"
 // GO BACK to App.js
 // ~~ USING THE CUSTOM HOOK ~~
+
+//
+
+// ~~ ADJUSTING THE CUSTOM HOOK LOGIC ~~
+// CAME FROM App.js
+// "useEffect" (where we use custm hook) would treat recreated function as a new value even if it's the same function and it would re-execute it. To avoid, we should:
+// STEP 1:
+// 1.1 Wrap "sendRequest" with "useCallback".
+// 1.2 "useCallback" always needs of dependency array, this dependency array also should list everything which is being used in there
+// ~~ ADJUSTING THE CUSTOM HOOK LOGIC ~~

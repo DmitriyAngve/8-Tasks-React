@@ -59,7 +59,7 @@ function App() {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
   const taskAddHandler = (task) => {
     setTasks((prevTasks) => prevTasks.concat(task));
@@ -102,3 +102,10 @@ export default App;
 // 3.7 Will rid old "fetchTasks" but hold "useEffect" with "fetchTasks" and use "fetchTasks" as a dependecy (will be infinite loop)
 // 3.8 Whenevere "fetchTasks" changes app rerun "useEffect".
 // ~~ USING THE CUSTOM HOOK ~~
+
+// ~~ ADJUSTING THE CUSTOM HOOK LOGIC ~~
+// If we add "fetchTasks" that create an infinite loop, Because we will cal "fetchtasks" in "useEffect(() => {fetchTasks})" and this will then gop ahead and execute "sendRequest" function from use-http.js in the custom hook (" sendRequest: fetchTasks,} = useHttp(...)" and that will then set some states, when the states are set (look at use-http.js) the component where we use the custom hook will be re-rendered, because when we use a custom hook, which use state and you use that hook in that component that component will implicitly use that state set up in the custom hook. The state configured in the custom hook is attached to the component where you use the custom hook
+// So if we call "setIsLoading" and "setError" (look at use-http.js) in the "sendRequest" function in the custom hook this will trigger the APP component to be re-evaluated because I'm using that custom hook here in that component ("const { isLoading, error, sendRequest: fetchTasks }" = useHttp({url: "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json",},transformTasks);)"
+// Then call then custom hook again when that component is re-evaluated and when that custom hook is called again, I'm recreating the "sendRequest" function and I'm returning a new function object and "useEffect" will run again ("useEffect(() => {fetchTasks();},[fetchTasks]);"). That happens because function are objects in JavaScript. And every time a function is recreated even if it contains the same logic it's a brand new object in memory and therefore "useEffect" would treat it as a new value even if it's the same function and it would re-execute it.
+// To avoid this, we should GO TO use-http.js --->>>
+// ~~ ADJUSTING THE CUSTOM HOOK LOGIC ~~
