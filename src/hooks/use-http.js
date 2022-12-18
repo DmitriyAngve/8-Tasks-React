@@ -1,35 +1,38 @@
 import { useCallback, useState } from "react";
 
-const useHttp = (requestConfig, applyData) => {
+const useHttp = (applyData) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const sendRequest = useCallback(async (taskText) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(requestConfig.url, {
-        method: requestConfig.method ? requestConfig.method : "GET",
-        headers: requestConfig.headers ? requestConfig.headers : {},
-        body: requestConfig.body ? JSON.stringify(requestConfig.body) : null,
-      });
+  const sendRequest = useCallback(
+    async (requestConfig) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(requestConfig.url, {
+          method: requestConfig.method ? requestConfig.method : "GET",
+          headers: requestConfig.headers ? requestConfig.headers : {},
+          body: requestConfig.body ? JSON.stringify(requestConfig.body) : null,
+        });
 
-      if (!response.ok) {
-        throw new Error("Request failed!");
+        if (!response.ok) {
+          throw new Error("Request failed!");
+        }
+
+        const data = await response.json();
+        applyData(data);
+        //   const loadedTasks = [];
+        //   for (const taskKey in data) {
+        //     loadedTasks.push({ id: taskKey, text: data[taskKey].text });
+        //   }
+        //   setTasks(loadedTasks);
+      } catch (err) {
+        setError(err.message || "Something went wrong!");
       }
-
-      const data = await response.json();
-      applyData(data);
-      //   const loadedTasks = [];
-      //   for (const taskKey in data) {
-      //     loadedTasks.push({ id: taskKey, text: data[taskKey].text });
-      //   }
-      //   setTasks(loadedTasks);
-    } catch (err) {
-      setError(err.message || "Something went wrong!");
-    }
-    setIsLoading(false);
-  }, []);
+      setIsLoading(false);
+    },
+    [applyData]
+  );
   return {
     // isLoading: isLoading,
     // error: error,
@@ -82,5 +85,12 @@ export default useHttp;
 // "useEffect" (where we use custm hook) would treat recreated function as a new value even if it's the same function and it would re-execute it. To avoid, we should:
 // STEP 1:
 // 1.1 Wrap "sendRequest" with "useCallback".
-// 1.2 "useCallback" always needs of dependency array, this dependency array also should list everything which is being used in there
+// 1.2 "useCallback" always needs of dependency array, this dependency array also should list everything which is being used in there ("requestConfing" object and "applyData(data)" function which recalling)
+// 1.3 Add as a dependency "[requestConfig, applyData]"
+// GO TO App.js --->>>
+// CAME FROM App.js
+// STEP: 3
+// 3.1 Instead of accepting the "requestConfig" in the hook itself ("useHttp"), why don't we expect that here in the "sendRequest" function after all that is the function which is being called with that 'requestConfig --- >>> remove "requestConfig" from "useHttp" as parameter, and add to "sendRequest"
+// 3.2 Remove "requestConfig" from dependency because it's now a parameter of this wrapped function not an external dependency
+// GO TO App.js --->>>
 // ~~ ADJUSTING THE CUSTOM HOOK LOGIC ~~

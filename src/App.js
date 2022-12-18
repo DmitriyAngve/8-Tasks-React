@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import Tasks from "./components/Tasks/Tasks";
 import NewTask from "./components/NewTask/NewTask";
@@ -9,7 +9,7 @@ function App() {
   // const [error, setError] = useState(null);
   const [tasks, setTasks] = useState([]);
 
-  const transformTasks = (tasksObj) => {
+  const transformTasks = useCallback((tasksObj) => {
     const loadedTasks = [];
 
     for (const taskKey in tasksObj) {
@@ -17,19 +17,10 @@ function App() {
     }
 
     setTasks(loadedTasks);
-  };
+  }, []);
 
   // const { isLoading, error, sendRequest } = httpData;
-  const {
-    isLoading,
-    error,
-    sendRequest: fetchTasks,
-  } = useHttp(
-    {
-      url: "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json",
-    },
-    transformTasks
-  );
+  const { isLoading, error, sendRequest: fetchTasks } = useHttp(transformTasks);
 
   // const fetchTasks = async (taskText) => {
   //   setIsLoading(true);
@@ -58,7 +49,9 @@ function App() {
   // };
 
   useEffect(() => {
-    fetchTasks();
+    fetchTasks(
+      "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json"
+    );
   }, [fetchTasks]);
 
   const taskAddHandler = (task) => {
@@ -108,4 +101,14 @@ export default App;
 // So if we call "setIsLoading" and "setError" (look at use-http.js) in the "sendRequest" function in the custom hook this will trigger the APP component to be re-evaluated because I'm using that custom hook here in that component ("const { isLoading, error, sendRequest: fetchTasks }" = useHttp({url: "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json",},transformTasks);)"
 // Then call then custom hook again when that component is re-evaluated and when that custom hook is called again, I'm recreating the "sendRequest" function and I'm returning a new function object and "useEffect" will run again ("useEffect(() => {fetchTasks();},[fetchTasks]);"). That happens because function are objects in JavaScript. And every time a function is recreated even if it contains the same logic it's a brand new object in memory and therefore "useEffect" would treat it as a new value even if it's the same function and it would re-execute it.
 // To avoid this, we should GO TO use-http.js --->>>
+// STEP 2:
+// 2.1 Import useCallback
+// 2.2 Wrap "transformTasks" with "useCallback" with empty dependency because in here I'm not using anything external other than set tasks which is a state updating function (these are guaranteed to never change: "setTasks(loadedTasks)")
+// transformTasks will not change all the time, but this object: "url: "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json" will, we are recreating it here all the time whenever the App component is re-evaluated, so to work around that, we could use "useMemo" to ensure that this object doesn't chenge all the time or change custom hook again
+// GO TO use-http.js --- >>>>
+// CAME FROM use-http.js
+// STEP: 4
+// 4.1 We gonna rid "url: "https://react-project-angve-2-default-rtdb.firebaseio.com/tasks.json" so that "transformTasks" is the only function we're passing to "useHttp" ("useHttp(transformTasks)")
+// 4.2 And we then go to "fetchTasks" where we are sending the request in the end (keep in mind "fetchTasks" is a "sendRequest"). We pass our config object here: "fetchTasks("https:react-project-angve-2-default-rtdb.firebaseio.com/tasks.json");"
+// 4.3
 // ~~ ADJUSTING THE CUSTOM HOOK LOGIC ~~
