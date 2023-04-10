@@ -8,8 +8,5 @@ This app allows me to explore React core feature, like Custom Hook, and how I bu
 
 <div>- User may add new task, which sents to Firebase and immediately display into the screen</div>
 <div>- Tasks, which user add stores on Firebase, and displays after reload.</div>
-<div>- </div>
-<div>- </div>
-
 
 <h2 align="center">Thanks for reading this entire post.<h2>
